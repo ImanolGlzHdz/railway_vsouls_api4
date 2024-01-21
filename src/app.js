@@ -1,5 +1,7 @@
 const express =require("express");
 const morgan =require("morgan");
+const mercadopago = require('mercadopago');
+const path = require('path');
 
 const productos= require('./routes/productos.routes.js');
 const review = require('./routes/review.routes.js');
@@ -113,6 +115,76 @@ app.use(ventampsocios);
 app.use(pdfdescargable);
 
 
+mercadopago.configure({
+  access_token: 'APP_USR-8597786470743959-011212-3e35418f85b7f20ed02216e6167ed0eb-559880536',
+});
+
+app.get('/mercadopago', (req, res) => {
+res.send('El servidor de MercadoPago funciona! :)');
+});
+
+app.post("/mercadopago/create_preference", (req, res) => {
+// const {id} = req.params
+// console.log(id, 'mercadopago')
+let preference = {
+  items: [
+    {
+      title: req.body.description,
+        unit_price: Number(req.body.price),
+        quantity: Number(req.body.quantity),
+    },
+    ],
+      back_urls: {
+      success: `http://localhost:3000/venta-exitosa`,
+      failure: `http://localhost:3000/venta-fallida`,
+      },
+    auto_return: "approved",
+    binary_mode: true,
+};
+  
+    mercadopago.preferences
+    .create(preference)
+    .then(function (response) {
+    res.json({
+    id: response.body.id,
+    });
+     })
+    .catch(function (error) {
+     console.log(error);
+    });
+  });
+
+app.post("/mercadopago/create_preference/socios", (req, res) => {
+// const {id} = req.params
+// console.log(id, 'mercadopago')
+let preference = {
+  items: [
+    {
+      title: req.body.description,
+        unit_price: Number(req.body.price),
+        quantity: Number(req.body.quantity),
+    },
+    ],
+      back_urls: {
+      success: `http://localhost:3000/venta-exitosa-socios`,
+      failure: `http://localhost:3000/venta-fallida-socios`,
+      },
+    auto_return: "approved",
+    binary_mode: true,
+};
+  
+    mercadopago.preferences
+    .create(preference)
+    .then(function (response) {
+    res.json({
+    id: response.body.id,
+    });
+     })
+    .catch(function (error) {
+     console.log(error);
+    });
+  });
+  
 app.use((req, res, next) => {
   res.status(404).json({ message: "Not found" });
 });
