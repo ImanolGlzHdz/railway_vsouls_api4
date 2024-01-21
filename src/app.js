@@ -1,5 +1,5 @@
-import express from "express";
-import morgan from "morgan";
+const express =require("express");
+const morgan =require("morgan");
 
 const productos= require('./routes/productos.routes.js');
 const review = require('./routes/review.routes.js');
